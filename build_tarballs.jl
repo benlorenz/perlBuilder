@@ -38,6 +38,9 @@ sources = [
     "https://cpan.metacpan.org/authors/id/G/GR/GRANTM/XML-SAX-Base-1.09.tar.gz" =>
     "66cb355ba4ef47c10ca738bd35999723644386ac853abbeb5132841f5e8a2ad0",
 
+    "https://cpan.metacpan.org/authors/id/M/MA/MANWAR/SVG-2.84.tar.gz" =>
+    "ec3d6ddde7a46fa507eaa616b94d217296fdc0d8fbf88741367a9821206f28af",
+
 ]
 
 # Bash recipe for building across all platforms
@@ -50,7 +53,8 @@ cd $WORKSPACE/srcdir/perl-5.28.0/
 make -j${nproc} install
 
 for perlmoddir in JSON-2.97001 XML-NamespaceSupport-1.12 XML-SAX-Base-1.09 \
-                  XML-SAX-1.00 XML-Writer-0.625 XML-LibXML-2.0132 TermReadKey-2.37;
+                  XML-SAX-1.00 XML-Writer-0.625 XML-LibXML-2.0132 TermReadKey-2.37 \
+                  SVG-2.84;
 do
    cd $WORKSPACE/srcdir/$perlmoddir;
    ${prefix}/bin/perl Makefile.PL;
@@ -61,15 +65,23 @@ cd $WORKSPACE/srcdir/XML-LibXSLT-1.96
 ${prefix}/bin/perl Makefile.PL LIBS="-L${prefix}/lib -lxslt -lexslt -lxml2 -lm -lz" INC="-I${prefix}/include -I${prefix}/include/libxml2"
 make install
 
+patchelf --set-rpath $(patchelf --print-rpath ${prefix}/bin/perl | sed -e "s#${prefix}#\$ORIGIN/..#g") ${prefix}/bin/perl
+for lib in ${prefix}/lib/perl5/site_perl/*/*/auto/XML/LibXML/LibXML.so \
+           ${prefix}/lib/perl5/site_perl/*/*/auto/XML/LibXSLT/LibXSLT.so;
+do
+   patchelf --set-rpath $(patchelf --print-rpath ${lib} | sed -e "s#${prefix}/lib#\$ORIGIN/../../../../../../..#g") ${lib};
+done
+
 """
 
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
 platforms = [
-    Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(:gcc8))
+    Linux(:x86_64, libc=:glibc)
+    Linux(:i686, libc=:glibc)
 ]
-# TODO:
-# platforms = [p for p in supported_platforms() if compiler_abi(p).gcc_version != :gcc4]
+#TODO: platforms = supported_platforms()
+
 
 # The products that we will ensure are always built
 products(prefix) = [
@@ -80,7 +92,7 @@ products(prefix) = [
 
 # Dependencies that must be installed before this package can be built
 dependencies = [
-    "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.2/build_Zlib.v1.2.11.jl",
+    "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.3/build_Zlib.v1.2.11.jl",
     "https://github.com/benlorenz/XML2Builder/releases/download/v1.0.1-1/build_XML2Builder.v2.9.7.jl",
     "https://github.com/benlorenz/XSLTBuilder/releases/download/v1.1.32/build_XSLTBuilder.v1.1.32.jl"
 ]
