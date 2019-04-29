@@ -3,13 +3,13 @@
 using BinaryBuilder
 
 name = "perl"
-version = v"5.28.0"
+version = v"5.28.2"
 
 # Collection of sources required to build perl
 # with a few extra modules for polymake
 sources = [
     "https://www.cpan.org/src/5.0/perl-$version.tar.gz" =>
-    "7e929f64d4cb0e9d1159d4a59fc89394e27fa1f7004d0836ca0d514685406ea8",
+    "aa95456dddb3eb1cc5475fed4e08f91876bea71fb636fba6399054dfbabed6c7",
 
     "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-2.97001.tar.gz" =>
     "e277d9385633574923f48c297e1b8acad3170c69fa590e31fa466040fc6f8f5a",
@@ -48,7 +48,7 @@ sources = [
 #   Term-ReadLine-Gnu-1.35
 #   - not needed for callable
 script = raw"""
-cd $WORKSPACE/srcdir/perl-5.28.0/
+cd $WORKSPACE/srcdir/perl-5.28.2/
 ./Configure -des -Dcc=gcc -Dprefix=$prefix -Duseshrplib -Darchname=$target -Dsysroot=/opt/$target/$target/sys-root
 make -j${nproc} install
 
@@ -92,9 +92,9 @@ products(prefix) = [
 
 # Dependencies that must be installed before this package can be built
 dependencies = [
-    "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.3/build_Zlib.v1.2.11.jl",
-    "https://github.com/benlorenz/XML2Builder/releases/download/v1.0.1-1/build_XML2Builder.v2.9.7.jl",
-    "https://github.com/benlorenz/XSLTBuilder/releases/download/v1.1.32/build_XSLTBuilder.v1.1.32.jl"
+    "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.4/build_Zlib.v1.2.11.jl",
+    "https://github.com/bicycle1885/XML2Builder/releases/download/v1.0.2/build_XML2Builder.v2.9.9.jl",
+    "https://github.com/benlorenz/XSLTBuilder/releases/download/v1.1.33/build_XSLTBuilder.v1.1.33.jl"
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
