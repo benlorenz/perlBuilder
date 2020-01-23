@@ -17,12 +17,6 @@ sources = [
     "https://cpan.metacpan.org/authors/id/J/JO/JOSEPHW/XML-Writer-0.625.tar.gz" =>
     "e080522c6ce050397af482665f3965a93c5d16f5e81d93f6e2fe98084ed15fbe",
 
-    "https://cpan.metacpan.org/authors/id/S/SH/SHLOMIF/XML-LibXML-2.0132.tar.gz" =>
-    "721452e3103ca188f5968ab06d5ba29fe8e00e49f4767790882095050312d476",
-
-    "https://cpan.metacpan.org/authors/id/S/SH/SHLOMIF/XML-LibXSLT-1.96.tar.gz" =>
-    "2a5e374edaa2e9f9d26b432265bfea9b4bb7a94c9fbfef9047b298fce844d473",
-
     "https://cpan.metacpan.org/authors/id/J/JS/JSTOWE/TermReadKey-2.38.tar.gz" =>
     "5a645878dc570ac33661581fbb090ff24ebce17d43ea53fd22e105a856a47290",
 
@@ -86,11 +80,6 @@ popd
 
 if [[ $target == *linux* ]]; then
 patchelf --set-rpath $(patchelf --print-rpath ${prefix}/bin/perl | sed -e "s#${prefix}#\$ORIGIN/..#g") ${prefix}/bin/perl
-for lib in ${prefix}/lib/perl5/*/*/auto/XML/LibXML/LibXML.${dlext} \
-           ${prefix}/lib/perl5/*/*/auto/XML/LibXSLT/LibXSLT.${dlext};
-do
-   patchelf --set-rpath $(patchelf --print-rpath ${lib} | sed -e "s#${prefix}/lib#\$ORIGIN/../../../../../..#g") ${lib};
-done
 fi
 
 
@@ -113,9 +102,6 @@ products(prefix) = [
 
 # Dependencies that must be installed before this package can be built
 dependencies = [
-    "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.4/build_Zlib.v1.2.11.jl",
-    "https://github.com/JuliaPackaging/Yggdrasil/releases/download/XML2-v2.9.9+0/build_XML2.v2.9.9.jl",
-    "https://github.com/benlorenz/XSLTBuilder/releases/download/v1.1.33/build_XSLTBuilder.v1.1.33.jl",
     "https://github.com/benlorenz/readlineBuilder/releases/download/v8.0/build_readline.v8.0.0.jl",
     "https://github.com/benlorenz/ncursesBuilder/releases/download/v6.1/build_ncurses.v6.1.0.jl"
 ]

@@ -98,35 +98,6 @@
  print blockoptions()."\n";
  
  open OUT, ">>", $file or die "Can't append to $file: $!";
---- perl-5.30.0-orig/cpan/XML-LibXML/Makefile.PL
-+++ perl-5.30.0/cpan/XML-LibXML/Makefile.PL
-@@ -91,7 +91,7 @@
- # -------------------------------------------------------------------------- #
- 
- use lib qw(inc);
--use Devel::CheckLib;
-+#use Devel::CheckLib;
- 
- # Prompt the user here for any paths and other configuration
- 
-@@ -413,6 +413,7 @@
- 
- sub _libxml_check_lib {
-     my ($libname) = @_;
-+    return 1;
- 
-     if (defined($config_LIBS_alternatives)) {
-         foreach my $conf_LIBS (@$config_LIBS_alternatives) {
---- perl-5.30.0-orig/cpan/XML-LibXSLT/Makefile.PL
-+++ perl-5.30.0/cpan/XML-LibXSLT/Makefile.PL
-@@ -451,6 +451,7 @@
- }
- 
- sub have_library {
-+    return 1;
-     my ($lib, $func) = (@_, "blank");
-     printf("checking for %s() in -l%s... ", $func, $lib) if $func ne "blank";
-     printf("looking for -l%s... ", $lib) if $func eq "blank";
 --- perl-5.30.0-orig/cpan/XML-SAX/Makefile.PL
 +++ perl-5.30.0/cpan/XML-SAX/Makefile.PL
 @@ -48,7 +48,7 @@
@@ -140,14 +111,7 @@
  
 --- /dev/null
 +++ perl-5.30.0/cpan/XML-SAX/lib/XML/SAX/ParserDetails.ini
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,3 @@
 +[XML::SAX::PurePerl]
 +http://xml.org/sax/features/namespaces = 1
-+
-+[XML::LibXML::SAX::Parser]
-+http://xml.org/sax/features/namespaces = 1
-+
-+[XML::LibXML::SAX]
-+http://xml.org/sax/features/namespaces = 1
-+
 +
