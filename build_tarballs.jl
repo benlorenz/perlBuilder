@@ -3,13 +3,13 @@
 using BinaryBuilder, Pkg
 
 name = "perl"
-version = v"5.30.0"
+version = v"5.30.3"
 
 # Collection of sources required to build perl
 # with a few extra modules for polymake
 sources = [
-    ArchiveSource("https://www.cpan.org/src/5.0/perl-$version.tar.gz", "851213c754d98ccff042caa40ba7a796b2cee88c5325f121be5cbb61bbf975f2"),
-    ArchiveSource("https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-4.01.tar.gz", "631593a939d4510e6ed76402556f38a34b20007237828670282e975712e0b1ed"),
+    ArchiveSource("https://www.cpan.org/src/5.0/perl-$version.tar.gz", "32e04c8bb7b1aecb2742a7f7ac0eabac100f38247352a73ad7fa104e39e7406f"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-4.02.tar.gz", "444a88755a89ffa2a5424ab4ed1d11dca61808ebef57e81243424619a9e8627c"),
     ArchiveSource("https://cpan.metacpan.org/authors/id/J/JO/JOSEPHW/XML-Writer-0.625.tar.gz", "e080522c6ce050397af482665f3965a93c5d16f5e81d93f6e2fe98084ed15fbe"),
     ArchiveSource("https://cpan.metacpan.org/authors/id/J/JS/JSTOWE/TermReadKey-2.38.tar.gz", "5a645878dc570ac33661581fbb090ff24ebce17d43ea53fd22e105a856a47290"),
     ArchiveSource("https://cpan.metacpan.org/authors/id/H/HA/HAYASHI/Term-ReadLine-Gnu-1.36.tar.gz", "9a08f7a4013c9b865541c10dbba1210779eb9128b961250b746d26702bab6925"),
@@ -33,22 +33,27 @@ do
 done
 
 cd $perldir/
+
+# force allow relocate with shared library
+atomic_patch -p1 ../patches/allow-relocate.patch
+
+# remove some library checks that wont work in the cross-compile environment
+atomic_patch -p1 ../patches/cross-nolibchecks.patch
 if [[ $target != x86_64-linux* ]] && [[ $target != i686-linux* ]]; then
    # build host miniperl
    src=`pwd`
    mkdir $src/host
    cd $src/host
-   $src/Configure -des -Dusedevel -Dmksymlinks -Dosname=linux -Dcc=$CC_FOR_BUILD -Dld=$LD_FOR_BUILD -Dar=$AR_FOR_BUILD -Dnm=$NM_FOR_BUILD -Dlibs=-lm
+   $src/Configure -des -Dusedevel -Duserelocatableinc -Dmksymlinks -Dosname=linux -Dcc=$CC_FOR_BUILD -Dld=$LD_FOR_BUILD -Dar=$AR_FOR_BUILD -Dnm=$NM_FOR_BUILD -Dlibs=-lm
    make -j${nproc} miniperl
    make -j${nproc} generate_uudmap
    cp -p miniperl $prefix/bin/miniperl-for-build
    cd ..
+   # copy and use prepared configure information
    cp ../patches/config-$target.sh config.sh
-   atomic_patch -p1 ../patches/cross-nolibchecks.patch
    ./Configure -K -S
 else
-   atomic_patch -p1 ../patches/cross-nolibchecks.patch
-   ./Configure -des -Dcc="$CC" -Dprefix=$prefix -Duseshrplib -Dsysroot=/opt/$target/$target/sys-root -Dccflags="-I${prefix}/include -I${prefix}/include/libxml2" -Dldflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib" -Dlddlflags="-shared -L${prefix}/lib -Wl,-rpath,${prefix}/lib"
+   ./Configure -des -Dcc="$CC" -Dprefix=$prefix -Duserelocatableinc -Dprocselfexe -Duseshrplib -Dsysroot=/opt/$target/$target/sys-root -Dccflags="-I${prefix}/include" -Dldflags="-L${libdir} -Wl,-rpath,${libdir}" -Dlddlflags="-shared -L${libdir} -Wl,-rpath,${libdir}"
 fi
 
 make -j${nproc} depend
@@ -56,23 +61,25 @@ make -j${nproc}
 
 make install
 
-pushd $prefix/lib
+# put a libperl directly in lib
+cd $libdir
 ln -s perl5/*/*/CORE/libperl.${dlext} libperl.${dlext}
-popd
 
-if [[ $target == *linux* ]]; then
-patchelf --set-rpath $(patchelf --print-rpath ${prefix}/bin/perl | sed -e "s#${prefix}#\$ORIGIN/..#g") ${prefix}/bin/perl
-fi
-
+# resolve case-ambiguity:
+cd $libdir/perl5/5.*.*
+mv Pod/* pod
+rmdir Pod
 
 """
 
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
 platforms = [
+    MacOS(:x86_64)
     Linux(:x86_64, libc=:glibc)
     Linux(:i686, libc=:glibc)
-    MacOS(:x86_64)
+    Linux(:x86_64, libc=:musl)
+    Linux(:i686, libc=:musl)
 ]
 
 

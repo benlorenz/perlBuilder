@@ -1,5 +1,5 @@
---- perl-5.30.0-orig/Makefile.SH
-+++ perl-5.30.0/Makefile.SH
+--- perl-5.30.3-orig/Makefile.SH
++++ perl-5.30.3/Makefile.SH
 @@ -972,7 +972,7 @@
  
  !NO!SUBS!
@@ -9,8 +9,8 @@
  	amigaos*)
  		$spitshell >>$Makefile <<'!NO!SUBS!'
  lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
---- perl-5.30.0-orig/cpan/JSON/Makefile.PL
-+++ perl-5.30.0/cpan/JSON/Makefile.PL
+--- perl-5.30.3-orig/cpan/JSON/Makefile.PL
++++ perl-5.30.3/cpan/JSON/Makefile.PL
 @@ -2,12 +2,12 @@
  use strict;
  use ExtUtils::MakeMaker;
@@ -44,8 +44,8 @@
              },
          } ) : ()
      ),
---- perl-5.30.0-orig/cpan/Term-ReadLine-Gnu/Makefile.PL
-+++ perl-5.30.0/cpan/Term-ReadLine-Gnu/Makefile.PL
+--- perl-5.30.3-orig/cpan/Term-ReadLine-Gnu/Makefile.PL
++++ perl-5.30.3/cpan/Term-ReadLine-Gnu/Makefile.PL
 @@ -102,8 +102,8 @@
  
  # Check version of GNU Readline Library (for version 4.2 and before)
@@ -73,8 +73,8 @@
      my ($RLINC, $RLLIB, $defs, $lddflags, $libs) = @_;
      my $frlmalloc = 'rlmalloc.c';
  
---- perl-5.30.0-orig/cpan/TermReadKey/Makefile.PL
-+++ perl-5.30.0/cpan/TermReadKey/Makefile.PL
+--- perl-5.30.3-orig/cpan/TermReadKey/Makefile.PL
++++ perl-5.30.3/cpan/TermReadKey/Makefile.PL
 @@ -79,7 +79,7 @@
      my $self = shift;
      $_ = $self->MM::processPL();
@@ -84,8 +84,8 @@
      return $_;
  }
  
---- perl-5.30.0-orig/cpan/TermReadKey/ReadKey.pm.PL
-+++ perl-5.30.0/cpan/TermReadKey/ReadKey.pm.PL
+--- perl-5.30.3-orig/cpan/TermReadKey/ReadKey.pm.PL
++++ perl-5.30.3/cpan/TermReadKey/ReadKey.pm.PL
 @@ -511,8 +511,10 @@
  require DynaLoader;
  our @ISA = qw(DynaLoader);
@@ -98,8 +98,8 @@
  print blockoptions()."\n";
  
  open OUT, ">>", $file or die "Can't append to $file: $!";
---- perl-5.30.0-orig/cpan/XML-SAX/Makefile.PL
-+++ perl-5.30.0/cpan/XML-SAX/Makefile.PL
+--- perl-5.30.3-orig/cpan/XML-SAX/Makefile.PL
++++ perl-5.30.3/cpan/XML-SAX/Makefile.PL
 @@ -48,7 +48,7 @@
          }
      }
@@ -110,7 +110,7 @@
          $script .= <<"INSTALL";
  
 --- /dev/null
-+++ perl-5.30.0/cpan/XML-SAX/lib/XML/SAX/ParserDetails.ini
++++ perl-5.30.3/cpan/XML-SAX/lib/XML/SAX/ParserDetails.ini
 @@ -0,0 +1,3 @@
 +[XML::SAX::PurePerl]
 +http://xml.org/sax/features/namespaces = 1
