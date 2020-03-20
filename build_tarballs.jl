@@ -1,6 +1,6 @@
 # Note that this script can accept some limited command-line arguments, run
 # `julia build_tarballs.jl --help` to see a usage message.
-using BinaryBuilder
+using BinaryBuilder, Pkg
 
 name = "perl"
 version = v"5.30.0"
@@ -8,34 +8,16 @@ version = v"5.30.0"
 # Collection of sources required to build perl
 # with a few extra modules for polymake
 sources = [
-    "https://www.cpan.org/src/5.0/perl-$version.tar.gz" =>
-    "851213c754d98ccff042caa40ba7a796b2cee88c5325f121be5cbb61bbf975f2",
-
-    "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-4.01.tar.gz" =>
-    "631593a939d4510e6ed76402556f38a34b20007237828670282e975712e0b1ed",
-
-    "https://cpan.metacpan.org/authors/id/J/JO/JOSEPHW/XML-Writer-0.625.tar.gz" =>
-    "e080522c6ce050397af482665f3965a93c5d16f5e81d93f6e2fe98084ed15fbe",
-
-    "https://cpan.metacpan.org/authors/id/J/JS/JSTOWE/TermReadKey-2.38.tar.gz" =>
-    "5a645878dc570ac33661581fbb090ff24ebce17d43ea53fd22e105a856a47290",
-
-    "https://cpan.metacpan.org/authors/id/H/HA/HAYASHI/Term-ReadLine-Gnu-1.36.tar.gz" =>
-    "9a08f7a4013c9b865541c10dbba1210779eb9128b961250b746d26702bab6925",
-
-    "https://cpan.metacpan.org/authors/id/G/GR/GRANTM/XML-SAX-1.02.tar.gz" =>
-    "4506c387043aa6a77b455f00f57409f3720aa7e553495ab2535263b4ed1ea12a",
-
-    "https://cpan.metacpan.org/authors/id/P/PE/PERIGRIN/XML-NamespaceSupport-1.12.tar.gz" =>
-    "47e995859f8dd0413aa3f22d350c4a62da652e854267aa0586ae544ae2bae5ef",
-
-    "https://cpan.metacpan.org/authors/id/G/GR/GRANTM/XML-SAX-Base-1.09.tar.gz" =>
-    "66cb355ba4ef47c10ca738bd35999723644386ac853abbeb5132841f5e8a2ad0",
-
-    "https://cpan.metacpan.org/authors/id/M/MA/MANWAR/SVG-2.84.tar.gz" =>
-    "ec3d6ddde7a46fa507eaa616b94d217296fdc0d8fbf88741367a9821206f28af",
-
-    "./bundled"
+    ArchiveSource("https://www.cpan.org/src/5.0/perl-$version.tar.gz", "851213c754d98ccff042caa40ba7a796b2cee88c5325f121be5cbb61bbf975f2"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-4.01.tar.gz", "631593a939d4510e6ed76402556f38a34b20007237828670282e975712e0b1ed"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/J/JO/JOSEPHW/XML-Writer-0.625.tar.gz", "e080522c6ce050397af482665f3965a93c5d16f5e81d93f6e2fe98084ed15fbe"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/J/JS/JSTOWE/TermReadKey-2.38.tar.gz", "5a645878dc570ac33661581fbb090ff24ebce17d43ea53fd22e105a856a47290"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/H/HA/HAYASHI/Term-ReadLine-Gnu-1.36.tar.gz", "9a08f7a4013c9b865541c10dbba1210779eb9128b961250b746d26702bab6925"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/G/GR/GRANTM/XML-SAX-1.02.tar.gz", "4506c387043aa6a77b455f00f57409f3720aa7e553495ab2535263b4ed1ea12a"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/P/PE/PERIGRIN/XML-NamespaceSupport-1.12.tar.gz", "47e995859f8dd0413aa3f22d350c4a62da652e854267aa0586ae544ae2bae5ef"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/G/GR/GRANTM/XML-SAX-Base-1.09.tar.gz", "66cb355ba4ef47c10ca738bd35999723644386ac853abbeb5132841f5e8a2ad0"),
+    ArchiveSource("https://cpan.metacpan.org/authors/id/M/MA/MANWAR/SVG-2.84.tar.gz", "ec3d6ddde7a46fa507eaa616b94d217296fdc0d8fbf88741367a9821206f28af"),
+    DirectorySource("./bundled")
 ]
 
 # Bash recipe for building
@@ -56,7 +38,7 @@ if [[ $target != x86_64-linux* ]] && [[ $target != i686-linux* ]]; then
    src=`pwd`
    mkdir $src/host
    cd $src/host
-   $src/Configure -des -Dusedevel -Dmksymlinks -Dosname=linux -Dcc=$CC_FOR_BUILD -Dld=$LD_FOR_BUILD -Dlibs=-lm
+   $src/Configure -des -Dusedevel -Dmksymlinks -Dosname=linux -Dcc=$CC_FOR_BUILD -Dld=$LD_FOR_BUILD -Dar=$AR_FOR_BUILD -Dnm=$NM_FOR_BUILD -Dlibs=-lm
    make -j${nproc} miniperl
    make -j${nproc} generate_uudmap
    cp -p miniperl $prefix/bin/miniperl-for-build
@@ -95,15 +77,14 @@ platforms = [
 
 
 # The products that we will ensure are always built
-products(prefix) = [
-    ExecutableProduct(prefix, "perl", :perl)
-    LibraryProduct(prefix, "libperl", :libperl)
+products = [
+    ExecutableProduct("perl", :perl)
+    LibraryProduct("libperl", :libperl)
 ]
 
 # Dependencies that must be installed before this package can be built
 dependencies = [
-    "https://github.com/benlorenz/readlineBuilder/releases/download/v8.0/build_readline.v8.0.0.jl",
-    "https://github.com/benlorenz/ncursesBuilder/releases/download/v6.1/build_ncurses.v6.1.0.jl"
+    Dependency(PackageSpec(name="Readline_jll",uuid="05236dd9-4125-5232-aa7c-9ec0c9b2c25a"))
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
